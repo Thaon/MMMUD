@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://unpkg.com/jquery.terminal@2.x.x/js/jquery.terminal.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/jquery.terminal@2.x.x/css/jquery.terminal.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+  </head>
+  <body>
+    <script>
+      //local vars
+      var userName = "";
+
+      var socket = io();
+
+      var terminal = $("body").terminal(
+        {
+          say: function() {
+            if (userName != "")
+              this.read(">: ", line => {
+                socket.emit("chatMessage", userName + " - " + line);
+              });
+          },
+          login: function() {
+            userName == "" &&
+              this.read("Set your name: ", line => {
+                userName = line;
+                socket.emit("login", userName);
+              });
+          }
+        },
+        {
+          greetings:
+            "Welcome to the Murder Mistery MUD!\nType name to set your user name\n\n",
+          name: "MMMUD",
+          prompt: userName + "> "
+        }
+      );
+
+      socket.on("connect", function() {
+        console.log("Connected!");
+      });
+      socket.on("chatMessage", function(msg) {
+        terminal.echo(msg);
+      });
+      socket.on("newUser", function() {
+        terminal.echo("new user joined");
+      });
+    </script>
+  </body>
+</html>
