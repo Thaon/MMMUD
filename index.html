@@ -47,8 +47,25 @@
                   });
                 break;
 
+              case "go":
+                userName != "" &&
+                  this.read("which direction? (n,s,w,e): ", line => {
+                    if (
+                      line === "w" ||
+                      line === "e" ||
+                      line === "n" ||
+                      line === "s"
+                    )
+                      socket.emit("switchRoom", line);
+                  });
+                break;
+
+              case "look":
+                userName != "" && socket.emit("look");
+                break;
+
               default:
-                if (command != "")
+                if (userName != "" && command != "")
                   socket.emit("chatMessage", userName + " - " + command);
                 break;
             }
@@ -81,6 +98,9 @@
       socket.on("chatMessage", function(msg) {
         terminal.echo(msg);
       });
+      socket.on("roomDescription", function(msg) {
+        terminal.echo(teal(msg));
+      });
       socket.on("newUser", function() {
         terminal.echo("new user joined");
       });
@@ -100,6 +120,10 @@
         scanlines[0].style.setProperty("--time", time);
         tv[0].style.setProperty("--width", width);
         tv[0].style.setProperty("--height", height);
+      }
+
+      function teal(message) {
+        return "[[gb;teal;black]" + message + "]";
       }
     </script>
 
